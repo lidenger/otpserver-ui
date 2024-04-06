@@ -14,5 +14,14 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
-  }
+  },
+  // 研发环境配置接口代理到后端服务
+  server: {
+    proxy: {
+      '/v1/admin': {
+        target: 'http://127.0.0.1:8066',
+        changeOrigin: true,
+      },
+    },
+  },
 })

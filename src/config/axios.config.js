@@ -4,6 +4,7 @@ import axios from "axios";
 axios.defaults.retry = 3;
 axios.defaults.retryDelay = 1000;
 axios.defaults.timeout = 60000;
+axios.defaults.baseURL = "/v1/admin"
 
 // 添加请求拦截器
 axios.interceptors.request.use(function (config) {
