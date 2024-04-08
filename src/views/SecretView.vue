@@ -1,5 +1,5 @@
 <template>
-  <el-card class="box-card">
+  <el-card class="box-card" :style="autoHeight">
     <template #header>
       <div class="card-header">
         <el-input
@@ -79,7 +79,7 @@
 
 <script setup>
 import axios from "@/config/axios.config.js";
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
 import dayjs from "dayjs"
 import {Search} from "@element-plus/icons-vue";
 import {ElMessage} from 'element-plus'
@@ -92,6 +92,13 @@ let total = ref(0)
 let searchTxt = ref("")
 let addAccountDialogVisible = ref(false)
 let addAccountParam = ref([])
+let windowHeight = parseInt(window.innerHeight)
+let autoHeight = ref({
+  height: ''
+})
+onMounted(() => {
+  autoHeight.value.height = (windowHeight - 108) + 'px';
+})
 
 const searchHandler = () => {
   console.log("searchHandler")
