@@ -24,15 +24,28 @@
         v-loading="loading"
         element-loading-text="Loading..."
         style="width: 100%" stripe>
-      <el-table-column prop="id" fixed label="ID" min-width="60"/>
-      <el-table-column prop="f1" label="服务标识"/>
-      <el-table-column prop="f2" label="服务名称"/>
-      <el-table-column prop="f3" label="服务描述"/>
-      <el-table-column prop="f4" label="是否启用"/>
-      <el-table-column prop="f5" label="敏感信息"/>
+      <el-table-column prop="id" fixed label="ID" min-width="30"/>
+      <el-table-column prop="account" label="账号"/>
+      <el-table-column prop="isEnable" label="是否启用">
+        <template #default="scope">
+          <el-tag :type="scope.row.isEnable === 1 ? 'success' : 'danger'">
+            {{ isEnableFormatter(scope.row.isEnable) }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column prop="dataCheck" label="数据校验" width="300" :show-overflow-tooltip="true"/>
       <el-table-column prop="createTime" :formatter="dateFormatter" label="创建时间" width="170"/>
       <el-table-column prop="updateTime" :formatter="dateFormatter" label="更新时间" width="170"/>
-      <el-table-column label="操作" width="100"/>
+      <el-table-column label="操作" width="200">
+        <template #default="scope">
+          <el-button plain type="primary" size="small" @click="addAccountDialogVisible = true">
+            查看密钥
+          </el-button>
+          <el-button type="warning" plain size="small" @click="addAccountDialogVisible = true">
+            启用/禁用
+          </el-button>
+        </template>
+      </el-table-column>
     </el-table>
     <el-pagination
         style="margin-top:10px;float:right;"
@@ -101,21 +114,46 @@ onMounted(() => {
 })
 
 const searchHandler = () => {
-  console.log("searchHandler")
+  paging()
 }
 const clearSearchTxt = () => {
   searchTxt.value = ""
-  console.log("clearSearchTxt")
+  paging()
 }
 const pageSizeChangeHandler = () => {
-  console.log("pageSizeChangeHandler")
+  paging()
 }
 const pageNoChangeHandler = () => {
-  console.log("pageNoChangeHandler")
+  paging()
 }
+
+const paging = () => {
+  axios.get("/secret/paging", {
+    params: {
+      "pageNo": pageNo.value,
+      "pageSize": pageSize.value,
+      "searchTxt": searchTxt.value
+    }
+  }).then(function (response) {
+    let data = response.data.data
+    tableData.value = data.rows
+    total.value = data.total
+  })
+}
+paging()
 
 const dateFormatter = (row, column, cellValue) => {
   return dayjs(cellValue).format("YYYY-MM-DD HH:mm:ss")
+}
+
+const isEnableFormatter = (cellValue) => {
+  if (cellValue === 1) {
+    return "启用"
+  } else if (cellValue === 2) {
+    return "禁用"
+  } else {
+    return cellValue
+  }
 }
 
 const addAccountCommitHandler = () => {
@@ -128,10 +166,9 @@ const addAccountCommitHandler = () => {
     "account": param.account,
     "isEnable": param.isEnable ? 1 : 2
   }).then(function (response) {
-    console.log(response);
-  }).catch(function (error) {
-    console.log(error);
-  });
+    ElMessage.success(response.data.msg)
+    paging()
+  })
 }
 
 </script>
