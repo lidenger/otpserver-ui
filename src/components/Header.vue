@@ -9,7 +9,7 @@
         </RouterLink>
 
         <el-menu
-            default-active="1"
+            :default-active="activeIndex"
             class="hc-el-menu"
             :ellipsis="false"
             mode="horizontal"
@@ -26,7 +26,7 @@
             </el-menu-item>
           </RouterLink>
           <RouterLink to="/server">
-            <el-menu-item index="3">
+            <el-menu-item index="2">
               <el-icon>
                 <Menu/>
               </el-icon>
@@ -71,12 +71,27 @@
 
 
 <script setup>
-import {
-  UserFilled,
-  SwitchButton,
-  User,
-} from '@element-plus/icons-vue'
-import {ref} from "vue";
+import {useRoute} from 'vue-router'
+import {SwitchButton, User, UserFilled,} from '@element-plus/icons-vue'
+import {ref, watch} from "vue";
+
+let activeIndex = ref("1")
+const currentRoute = useRoute()
+
+watch(() => currentRoute.path, (path) => {
+  switch (path) {
+    case "/":
+      activeIndex.value = "1"
+      break
+    case "/secret":
+      activeIndex.value = "1"
+      break
+    case "/server":
+      activeIndex.value = "2"
+      break
+  }
+})
+
 
 // 当前登陆账号
 let currentAccount = ref({
