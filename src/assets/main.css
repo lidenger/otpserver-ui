@@ -5,7 +5,12 @@
   font-family: "MicrosoftYaHei";
 }
 
-a {
-  color: #626467;
-  text-decoration: none
+
+a:link,a:hover,a:visited,a:active{
+  color:transparent !important;
+}
+
+.el-menu-item.is-active{
+  color:#ffd04b !important;
+  border:none !important;
 }

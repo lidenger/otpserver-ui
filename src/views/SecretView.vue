@@ -153,8 +153,8 @@ let pageSize = ref(10)
 let total = ref(0)
 let searchTxt = ref("")
 let addAccountDialogVisible = ref(false)
-let addAccountParam = ref([])
-let windowHeight = parseInt(window.innerHeight)
+let addAccountParam = ref({"account":"","isEnable":true})
+let windowHeight = window.innerHeight
 let autoHeight = ref({
   height: ''
 })
