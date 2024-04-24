@@ -28,7 +28,7 @@
       <el-table-column prop="serverSign" label="服务标识"/>
       <el-table-column prop="serverName" label="服务名称"/>
       <el-table-column prop="serverRemark" label="服务描述"/>
-      <el-table-column prop="isEnable" label="是否启用">
+      <el-table-column prop="isEnable" label="服务状态" width="80">
         <template #default="scope">
           <el-tag :type="scope.row.isEnable === 1 ? 'success' : 'danger'">
             {{ isEnableFormatter(scope.row.isEnable) }}
@@ -42,12 +42,22 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="createTime" :formatter="dateFormatter" label="创建时间" width="170"/>
-      <el-table-column prop="updateTime" :formatter="dateFormatter" label="更新时间" width="170"/>
-      <el-table-column label="操作" width="260">
+      <el-table-column prop="isEnableIPlist" label="IP白名单" width="80">
+        <template #default="scope">
+          <el-tag :type="scope.row.isEnableIPlist === 1 ? 'success' : 'danger'">
+            {{ isEnableFormatter(scope.row.isEnableIPlist) }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column prop="createTime" :formatter="dateFormatter" label="创建时间" width="165"/>
+      <el-table-column prop="updateTime" :formatter="dateFormatter" label="更新时间" width="165"/>
+      <el-table-column label="操作" width="330">
         <template #default="scope">
           <el-button plain type="primary" size="small" @click="editBtnHandler(scope.row)">
             编辑
+          </el-button>
+          <el-button plain type="success" size="small" @click="ipListBtnHandler(scope.row)">
+            IP白名单
           </el-button>
           <el-button plain type="warning" size="small" @click="viewSecretHandler(scope.row)">
             查看密钥
@@ -97,6 +107,11 @@
                    active-text="允许"
                    inactive-text="禁止"/>
       </el-form-item>
+      <el-form-item label="IP白名单">
+        <el-switch v-model="addServerParam.isEnableIPlist" inline-prompt
+                   active-text="启用"
+                   inactive-text="禁用"/>
+      </el-form-item>
     </el-form>
     <template #footer>
           <span class="dialog-footer">
@@ -107,7 +122,6 @@
           </span>
     </template>
   </el-dialog>
-
 
   <el-dialog
       v-model="viewServerDialogVisible"
@@ -155,6 +169,11 @@
                    active-text="允许"
                    inactive-text="禁止"/>
       </el-form-item>
+      <el-form-item label="IP白名单">
+        <el-switch v-model="curSetEnableSelectServer.isEnableIPlist" inline-prompt
+                   active-text="启用"
+                   inactive-text="禁用"/>
+      </el-form-item>
     </el-form>
     <template #footer>
           <span class="dialog-footer">
@@ -194,6 +213,65 @@
     </template>
   </el-dialog>
 
+  <el-dialog
+      v-model="ipListDialogVisible"
+      width="800px"
+      draggable
+  >
+    <template #header="{ close, titleId, titleClass }">
+      <div class="server-dialog-header">
+        <b>{{ '[' + curSelectServer.serverSign + '] IP白名单列表' }}</b>
+        <el-button plain type="primary" size="small" @click="addIpListBtnHandler">
+          增加
+        </el-button>
+      </div>
+    </template>
+
+    <el-table :data="curIpListTableData" style="width: 100%">
+      <el-table-column prop="serverSign" label="服务标识"/>
+      <el-table-column prop="ip" label="IP"/>
+      <el-table-column prop="createTime" :formatter="dateFormatter" label="添加时间"/>
+      <el-table-column label="操作" width="100">
+        <template #default="scope">
+          <el-button plain type="danger" size="small" @click="removeIpBtnHandler(scope.row)">
+            删除
+          </el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="ipListDialogVisible = false">关闭</el-button>
+          </span>
+    </template>
+  </el-dialog>
+
+  <el-dialog
+      v-model="addIpListDialogVisible"
+      :title="'新增 [' + curSelectServer.serverSign + '] IP白名单列表'"
+      width="600px"
+      center
+      draggable
+  >
+    <el-form :model="addIpListParam" label-width="100px">
+      <el-form-item label="服务标识">
+        <el-input v-model="addIpListParam.serverSign" disabled clearable/>
+      </el-form-item>
+      <el-form-item label="IP">
+        <el-input v-model="addIpListParam.ip" clearable/>
+      </el-form-item>
+    </el-form>
+    <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="addIpListDialogVisible = false">取消</el-button>
+            <el-button type="warning" plain @click="addIpListCommitHandler">
+              确定增加
+            </el-button>
+          </span>
+    </template>
+  </el-dialog>
+
+
 </template>
 
 
@@ -211,7 +289,7 @@ let pageSize = ref(10)
 let total = ref(0)
 let searchTxt = ref("")
 let addServerDialogVisible = ref(false)
-let addServerParam = ref({"isEnable": true, "isOperateSensitiveData": false})
+let addServerParam = ref({"isEnable": true, "isOperateSensitiveData": false, "isEnableIPlist": false})
 let windowHeight = window.innerHeight
 let autoHeight = ref({
   height: ''
@@ -225,6 +303,12 @@ let setEnableDialogVisible = ref(false)
 
 let curEditSelectServer = ref({})
 let editDialogVisible = ref(false)
+
+let ipListDialogVisible = ref(false)
+let curIpListTableData = ref([])
+let addIpListDialogVisible = ref(false)
+let addIpListParam = ref({})
+
 
 onMounted(() => {
   autoHeight.value.height = (windowHeight - 108) + 'px';
@@ -257,6 +341,7 @@ const addServerCommitHandler = () => {
     "serverRemark": param.serverRemark,
     "isEnable": param.isEnable ? 1 : 2,
     "isOperateSensitiveData": param.isOperateSensitiveData ? 1 : 2,
+    "isEnableIPlist": param.isEnableIPlist ? 1 : 2,
   }).then(function (response) {
     addServerDialogVisible.value = false
     paging()
@@ -336,7 +421,8 @@ const setEnableBtnHandler = (row) => {
     "serverSign": row.serverSign,
     "serverName": row.serverName,
     "isEnable": row.isEnable === 1,
-    "isOperateSensitiveData": row.isOperateSensitiveData === 1
+    "isOperateSensitiveData": row.isOperateSensitiveData === 1,
+    "isEnableIPlist": row.isEnableIPlist === 1
   })
   setEnableDialogVisible.value = true
 }
@@ -348,7 +434,8 @@ const setEnableCommitHandler = () => {
     "serverSign": params.serverSign,
     "serverName": params.serverName,
     "isEnable": params.isEnable ? 1 : 2,
-    "isOperateSensitiveData": params.isOperateSensitiveData ? 1 : 2
+    "isOperateSensitiveData": params.isOperateSensitiveData ? 1 : 2,
+    "isEnableIPlist": params.isEnableIPlist ? 1 : 2,
   }).then(function (response) {
     setEnableDialogVisible.value = false
     paging()
@@ -356,12 +443,56 @@ const setEnableCommitHandler = () => {
   })
 }
 
+const getIpList = (serverSign) => {
+  axios.get("/server/" + serverSign + "/iplist").then(function (response) {
+    curIpListTableData.value = response.data.data
+  })
+}
+
+const ipListBtnHandler = (row) => {
+  axios.get("/server/" + row.serverSign).then(function (response) {
+    curSelectServer.value = response.data.data
+    getIpList(curSelectServer.value.serverSign)
+    ipListDialogVisible.value = true
+  })
+}
+
+const removeIpBtnHandler = (row) => {
+  axios.delete("/server/iplist", {data: row}).then(function (response) {
+    ElMessage.success(response.data.msg)
+    getIpList(row.serverSign)
+  })
+}
+
+const addIpListBtnHandler = () => {
+  const sign = curSelectServer.value.serverSign
+  addIpListParam.value = {
+    serverSign: sign,
+    ip: ""
+  }
+  addIpListDialogVisible.value = true
+}
+
+const addIpListCommitHandler = () => {
+  axios.post("/server/iplist", addIpListParam.value).then(function (response) {
+    ElMessage.success(response.data.msg)
+    addIpListDialogVisible.value = false
+    getIpList(addIpListParam.value.serverSign)
+  })
+}
 
 </script>
 
 <style scoped>
 .search {
   width: 400px;
+}
+
+.server-dialog-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 16px;
 }
 </style>
 
