@@ -1,14 +1,21 @@
 <template>
   <main>
-    <Header/>
-    <RouterView/>
+    <Header v-if="isShowHeader"/>
+    <RouterView ref="routerView" @headerShowMethod="headerShow"/>
   </main>
 </template>
 
 
-<script setup lang="ts">
-import {RouterView } from 'vue-router'
+<script setup>
+import {RouterView} from 'vue-router'
 import Header from './components/Header.vue'
+import {ref} from "vue";
+
+let isShowHeader = ref(true)
+
+const headerShow = (show) => {
+  isShowHeader.value = show
+}
 
 </script>
 

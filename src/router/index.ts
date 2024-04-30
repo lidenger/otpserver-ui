@@ -9,6 +9,11 @@ const router = createRouter({
             component: () => import('../views/SecretView.vue')
         },
         {
+            path: '/login',
+            name: 'login-view',
+            component: () => import('../views/LoginView.vue')
+        },
+        {
             path: '/secret',
             name: 'secret-view',
             component: () => import('../views/SecretView.vue')
