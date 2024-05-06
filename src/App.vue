@@ -1,21 +1,21 @@
 <template>
   <main>
     <Header v-if="isShowHeader"/>
-    <RouterView ref="routerView" @headerShowMethod="headerShow"/>
+    <RouterView ref="routerView"/>
   </main>
 </template>
-
 
 <script setup>
 import {RouterView} from 'vue-router'
 import Header from './components/Header.vue'
-import {ref} from "vue";
+import router from './router/index'
+import {ref, watch} from "vue";
 
 let isShowHeader = ref(true)
 
-const headerShow = (show) => {
-  isShowHeader.value = show
-}
+watch(() => router.currentRoute.value, (newPath, oldPath) => {
+  isShowHeader.value = newPath.fullPath !== "/login"
+}, {immediate: true});
 
 </script>
 

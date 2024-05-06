@@ -74,6 +74,8 @@
 import {useRoute} from 'vue-router'
 import {SwitchButton, User, UserFilled,} from '@element-plus/icons-vue'
 import {ref, watch} from "vue";
+import axios from "@/config/axios.config.js";
+import {ElMessage} from "element-plus";
 
 let activeIndex = ref("1")
 const currentRoute = useRoute()
@@ -100,7 +102,9 @@ let currentAccount = ref({
 })
 
 let logoutHandler = () => {
-  console.log("logout")
+  axios.post("/logout", {}).then(function (response) {
+    ElMessage.success(response.data.msg)
+  })
 }
 
 </script>
