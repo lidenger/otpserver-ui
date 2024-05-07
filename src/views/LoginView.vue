@@ -4,17 +4,17 @@
   </div>
 
   <el-dialog v-model="loginVisible"
-             title="Login" width="500"
+             title="Login" width="400"
              :show-close="false"
              align-center
              :modal="false"
              style="background-color: rgba(255, 255, 255, 0.6)"
              :close-on-click-modal="false">
     <el-form :model="loginParam">
-      <el-form-item label="Account" label-width="150" style="color: red">
-        <el-input v-model="loginParam.account" :suffix-icon="User"/>
+      <el-form-item label="Account" label-width="100" >
+        <el-input v-model="loginParam.account" :suffix-icon="User" disabled/>
       </el-form-item>
-      <el-form-item label="Password" label-width="150">
+      <el-form-item label="Password" label-width="100">
         <el-input v-model="loginParam.password" type="password" :suffix-icon="Key"/>
       </el-form-item>
     </el-form>
@@ -33,7 +33,6 @@
 import {ref} from "vue";
 import {Key, User} from '@element-plus/icons-vue'
 import axios from "@/config/axios.config.js";
-import {ElMessage} from "element-plus";
 
 let loginVisible = ref(true)
 let loginParam = ref({
@@ -43,7 +42,7 @@ let loginParam = ref({
 const loginCommitHandler = () => {
   axios.post("/login", loginParam.value).then(function (response) {
     if (response.data.code === 200000) {
-      ElMessage.success(response.data.msg)
+      window.location.href = "/"
     }
   })
 }

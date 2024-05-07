@@ -103,7 +103,9 @@ let currentAccount = ref({
 
 let logoutHandler = () => {
   axios.post("/logout", {}).then(function (response) {
-    ElMessage.success(response.data.msg)
+    if (response.data.code === 200000) {
+      window.location.href = "#/login"
+    }
   })
 }
 
