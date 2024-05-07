@@ -1,16 +1,16 @@
 /*@import './base.css';*/
-#app {
-  margin: 0;
-  padding: 0;
-  font-family: "MicrosoftYaHei";
+* {
+    margin: 0;
+    padding: 0;
+    font-family: "MicrosoftYaHei";
 }
 
 
-a:link,a:hover,a:visited,a:active{
-  color:transparent !important;
+a:link, a:hover, a:visited, a:active {
+    color: transparent !important;
 }
 
-.el-menu-item.is-active{
-  color:#ffd04b !important;
-  border:none !important;
+.el-menu-item.is-active {
+    color: #ffd04b !important;
+    border: none !important;
 }
