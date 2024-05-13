@@ -89,18 +89,21 @@
   <el-dialog
       v-model="viewSecretDialogVisible"
       title="查看账号密钥"
-      width="600px"
+      width="700px"
       center
       draggable
   >
     <el-form :model="curSelectAccount" label-width="100px">
       <el-form-item label="账号">
-        <el-input v-model="curSelectAccount.account" clearable/>
+        <el-input v-model="curSelectAccount.account" readonly/>
       </el-form-item>
       <el-form-item label="密钥">
-        <el-input v-model="curSelectAccount.secret" type="textarea"/>
+        <el-input v-model="curSelectAccount.secret" type="password" show-password/>
       </el-form-item>
     </el-form>
+    <el-card style="text-align:center">
+        <vue-qr :text="qrContent" :size="240" logoSrc="otpserver.png"></vue-qr>
+    </el-card>
     <template #footer>
           <span class="dialog-footer">
             <el-button @click="viewSecretDialogVisible = false">关闭</el-button>
@@ -145,6 +148,7 @@ import {onMounted, ref} from "vue";
 import dayjs from "dayjs"
 import {Search} from "@element-plus/icons-vue";
 import {ElMessage} from 'element-plus'
+import vueQr from 'vue-qr/src/packages/vue-qr.vue'
 
 let loading = ref(false)
 let tableData = ref([])
@@ -164,6 +168,8 @@ let viewSecretDialogVisible = ref(false)
 
 let curSetEnableSelectAccount = ref({})
 let setEnableDialogVisible = ref(false)
+
+let qrContent = ref("123123")
 
 
 onMounted(() => {
@@ -201,6 +207,11 @@ const viewSecretHandler = (row) => {
     curSelectAccount.value = response.data.data
     viewSecretDialogVisible.value = true
   })
+
+  axios.get("/secret/" + row.account + "/qrcode-content").then(function (response) {
+    qrContent.value = response.data.data
+  })
+
 }
 
 const dateFormatter = (row, column, cellValue) => {

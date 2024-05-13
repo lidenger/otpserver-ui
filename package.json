@@ -16,6 +16,7 @@
     "dayjs": "^1.11.10",
     "element-plus": "^2.6.3",
     "vue": "^3.4.21",
+    "vue-qr": "^4.0.9",
     "vue-router": "^4.3.0"
   },
   "devDependencies": {
